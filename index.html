@@ -156,6 +156,8 @@ tbody tr:hover{background:rgba(255,255,255,.018)}tbody tr:last-child td{border:n
     <div class="nl">Finanza</div>
     <button class="nb" onclick="go('gu',this)"><div class="ni">&#127918;</div>Rendimento Siti</button>
     <button class="nb" onclick="go('fn',this)"><div class="ni">&#128176;</div>Fondi</button>
+    <div class="nl">Clienti</div>
+    <button class="nb" onclick="go('dc',this)"><div class="ni">&#128196;</div>Documenti</button>
   </nav>
   <div class="sf">
     <div class="pulse"></div>
@@ -243,6 +245,14 @@ tbody tr:hover{background:rgba(255,255,255,.018)}tbody tr:last-child td{border:n
     </div>
   </div>
 
+  <div class="page" id="page-dc">
+    <div class="sh" style="display:flex;align-items:center;justify-content:space-between">
+      <div><div class="sht">Documenti Clienti</div><div class="shs">Documenti caricati tramite il modulo</div></div>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfa01SMt7wx3tgSZ_YF5TaaAGSPnymPZLEkhT7DkSuMRwsCPQ/viewform?usp=header" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none">&#43; Nuovo Modulo</a>
+    </div>
+    <div id="dcBody" style="margin-top:8px"></div>
+  </div>
+
   </div>
 </main>
 
@@ -265,7 +275,52 @@ var NAMES=['Riccardo','Antonio','Ciro','Alessia','Emiliano','Francesco','Mary+Sa
 var EMOJIS=['&#9889;','&#128309;','&#128995;','&#127800;','&#128998;','&#128167;','&#11088;'];
 var COLORS=['#CC0000','#3B82F6','#A855F7','#EC4899','#FB923C','#06B6D4','#FFD060'];
 var D=null,cF=null,_t=null;
-var PAGES={ov:['Overview','MBBET 2026'],op:['Operatori','Clicca per dettagli'],cl:['Clienti Live','Tutti i clienti'],gu:['Rendimento Siti','Per bookmaker'],fn:['Fondi','20/20/60']};
+var PAGES={ov:['Overview','MBBET 2026'],op:['Operatori','Clicca per dettagli'],cl:['Clienti Live','Tutti i clienti'],gu:['Rendimento Siti','Per bookmaker'],fn:['Fondi','20/20/60'],dc:['Documenti','Gestione documenti clienti']};
+var DC=null,_dcLoaded=false;
+
+function loadDrive(force){
+  if(!force&&_dcLoaded)return;
+  var b=document.getElementById('dcBody');
+  b.innerHTML='<div style="color:var(--muted2);padding:32px;text-align:center">Carico documenti...</div>';
+  fetch(API+'/drive'+(force?'?refresh=1':'')).then(function(r){return r.json();}).then(function(d){
+    DC=d; _dcLoaded=true; renderDrive();
+  }).catch(function(e){
+    b.innerHTML='<div style="color:var(--red2);padding:32px">Errore: '+e.message+'</div>';
+  });
+}
+
+function renderDrive(){
+  if(!DC)return;
+  var cartelle=DC.cartelle||[];
+  var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">';
+  cartelle.forEach(function(c){
+    var nome=c.nome.split('(')[0].trim();
+    var tot=c.file.length;
+    html+='<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0;overflow:hidden">';
+    html+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">';
+    html+='<span style="font-size:20px">&#128193;</span>';
+    html+='<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">'+nome+'</div>';
+    html+='<div style="font-size:11px;color:var(--muted2)">'+tot+' documento'+(tot!==1?'i':'')+'</div></div></div>';
+    if(tot===0){
+      html+='<div style="padding:20px 16px;color:var(--muted2);font-size:12px;text-align:center">Nessun documento</div>';
+    } else {
+      html+='<div style="padding:8px 0;max-height:220px;overflow-y:auto">';
+      c.file.forEach(function(f){
+        var icona=f.tipo.indexOf('image')!==-1?'&#128247;':f.tipo.indexOf('pdf')!==-1?'&#128196;':'&#128442;';
+        html+='<a href="'+f.link+'" target="_blank" style="display:flex;align-items:center;gap:10px;padding:8px 16px;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'rgba(255,255,255,.04)\'" onmouseout="this.style.background=\'none\'">';
+        html+='<span style="font-size:16px">'+icona+'</span>';
+        html+='<div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.nome+'</div>';
+        html+='<div style="font-size:10px;color:var(--muted2)">'+f.data+'</div></div>';
+        html+='<span style="font-size:10px;color:var(--red2)">Apri &#8599;</span></a>';
+      });
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+  html+='</div>';
+  if(DC.aggiornato)html+='<div style="margin-top:12px;font-size:11px;color:var(--muted2)">Aggiornato: '+DC.aggiornato+'</div>';
+  document.getElementById('dcBody').innerHTML=html;
+}
 
 function go(id,el){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
@@ -273,6 +328,7 @@ function go(id,el){
   document.getElementById('page-'+id).classList.add('active');
   if(el)el.classList.add('active');
   document.getElementById('pgT').textContent=PAGES[id][0];
+  if(id==='dc')loadDrive(false);
   document.getElementById('pgS').textContent=PAGES[id][1];
 }
 function eur(n){var v=parseFloat(n)||0;return (v<0?'-':'')+'&#8364;'+Math.abs(v).toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0});}
