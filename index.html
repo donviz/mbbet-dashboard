@@ -294,7 +294,7 @@ function renderDrive(){
   var cartelle=DC.cartelle||[];
   var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">';
   cartelle.forEach(function(c){
-    var nome=c.nome.split('(')[0].trim();
+    var nome=c.nome;
     var tot=c.file.length;
     html+='<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0;overflow:hidden">';
     html+='<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">';
