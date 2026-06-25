@@ -410,7 +410,6 @@ function tt(x){return Object.assign({backgroundColor:'rgba(8,8,8,.96)',borderCol
 function initC(){
   if(cBar){try{cBar.destroy();}catch(e){}cBar=null;}
   if(cDon){try{cDon.destroy();}catch(e){}cDon=null;}
-  if(cLine){try{cLine.destroy();}catch(e){}cLine=null;}
   if(cFon){try{cFon.destroy();}catch(e){}cFon=null;}
   cBar=new Chart(document.getElementById('cBar'),{type:'bar',data:{labels:NAMES,datasets:[{data:Array(7).fill(0),backgroundColor:COLORS.map(function(c){return c+'33';}),borderColor:COLORS,borderWidth:2,borderRadius:7,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:tt({callbacks:{label:function(c){return ' '+eur(c.parsed.y);}}})},scales:{x:{grid:{color:'rgba(255,255,255,.03)'},border:{display:false},ticks:{color:'#555',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.03)'},border:{display:false},ticks:{color:'#555',font:{size:10},callback:function(v){return eur(v);}}}}}});
   cDon=new Chart(document.getElementById('cDon'),{type:'doughnut',data:{labels:NAMES,datasets:[{data:Array(7).fill(1),backgroundColor:COLORS,borderWidth:0,hoverOffset:7}]},options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:8,usePointStyle:true,pointStyle:'circle',color:'#666',font:{size:9}}},tooltip:tt()}}});
