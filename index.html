@@ -623,14 +623,10 @@ function authHdr(){return _tok?{'Authorization':'Bearer '+_tok}:{};}
 
 function showLogin(msg){
   document.getElementById('loginScreen').style.display='flex';
-  document.querySelector('.sb').style.display='none';
-  document.querySelector('.main').style.display='none';
   if(msg)document.getElementById('loginErr').textContent=msg;
 }
 function hideLogin(){
   document.getElementById('loginScreen').style.display='none';
-  document.querySelector('.sb').style.display='flex';
-  document.querySelector('.main').style.display='flex';
 }
 function doLogin(){
   var email=document.getElementById('liEmail').value.trim();
